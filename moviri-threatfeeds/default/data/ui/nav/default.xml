@@ -1,0 +1,8 @@
+<nav search_view="moviri_threat_feeds_overview" color="#000099" >
+  <view name="moviri_threat_feeds_overview" default='true' />
+  <view name="search" />
+  <view name="data_models" /> 
+  <view name="reports" />
+  <view name="alerts" />
+  <view name="dashboards" />
+</nav>

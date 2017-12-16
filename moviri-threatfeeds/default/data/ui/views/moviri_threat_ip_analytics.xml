@@ -1,0 +1,60 @@
+<form script="autodiscover.js">
+  <label>Threat IP Analytics Dashboard</label>
+  <row>
+    <html>
+    <h2>IP Threat Source by: Country</h2>
+    <div id="tagcloud-search" class="splunk-manager splunk-searchmanager " data-require="splunkjs/mvc/searchmanager" data-options="{     &quot;app&quot;: &quot;TFPS&quot;,     &quot;preview&quot;: true,     &quot;search&quot;: &quot;index=TFPS | iplocation IP  | stats count(IP) as IP by Country | sort -IP limit=30&quot;,     &quot;earliest_time&quot;: &quot;0&quot;     }">
+    </div>
+    <div id="tagcloud" class="splunk-view" data-require="app/moviri-threatfeeds/components/tagcloud/tagcloud" data-options="{     &quot;minFontSize&quot;: 14,     &quot;maxFontSize&quot;: 55,     &quot;managerid&quot;: &quot;tagcloud-search&quot;,     &quot;valueField&quot;: &quot;IP&quot;,     &quot;labelField&quot;: &quot;Country&quot;     }">
+    </div>
+    </html>
+  </row>
+  <label>Threat IP Analytic</label>
+  <description>Events Filtered by IP or IPSource using Dropdown Form Inputs</description>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="text" token="IP">
+      <label>Enter a IP for investigation:</label>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="IPSource" searchWhenChanged="true">
+      <label>Select a IPSource:</label>
+      <prefix>IPSource="</prefix>
+      <suffix>"</suffix>
+      <default>*</default>
+      <choice value="*">All</choice>
+      <populatingSearch fieldForValue="IPSource" fieldForLabel="IPSource" earliest="0" latest="now">
+        <![CDATA[index=TFPS | stats count by IPSource]]>
+      </populatingSearch>
+    </input>
+  </fieldset>
+  <row>
+    <table>
+      <title>Stats of Events of Country, City by IPSource</title>
+      <searchString>index=TFPS $IPSource$ | iplocation IP | stats count by IP City Country | sort -count limit=5</searchString>
+      <earliestTime>0</earliestTime>
+      <latestTime>now</latestTime>
+      <option name="wrap">true</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">5</option>
+    </table>
+    <table>
+      <title>Stats of Events by IPSource</title>
+      <searchString>index=TFPS IP=* $IPSource$ | table _time, IP, IPSource</searchString>
+      <earliestTime>0</earliestTime>
+      <latestTime>now</latestTime>
+      <option name="wrap">true</option>
+      <option name="displayRowNumbers">true</option>
+      <option name="dataOverlayMode">none</option>
+      <option name="drilldown">row</option>
+      <option name="count">5</option>
+    </table>
+  </row>
+  <row>
+    <table>
+      <title>Visibility Threat IP Activities in Environment - Input IP above</title>
+      <searchString>index=TFPS OR index=* IP=$IP$ | Table _time host sourcetype source</searchString>
+    </table>
+  </row>
+</form>

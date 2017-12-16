@@ -1,0 +1,37 @@
+[]
+export = system
+
+[indexes/mov_tfps]
+owner = admin
+version = 6.3.0
+modtime = 1448280459.315075000
+
+[nav/default]
+version = 6.3.0
+modtime = 1448285391.305769000
+
+[views/moviri_threat_feeds_overview]
+version = 6.3.1
+modtime = 1448453497.735742000
+
+[views/moviri_threat_ip_analytics]
+version = 6.3.1
+modtime = 1448458171.232216000
+
+[views/moviri_threats_intelligence_overview]
+version = 6.3.1
+modtime = 1448453583.273340000
+
+[savedsearches/Populate%20Netfeed.csv]
+access = read : [ * ], write : [ * ]
+export = none
+owner = admin
+version = 6.3.1
+modtime = 1448465828.535316000
+
+[views/traffic_security_check]
+access = read : [ * ], write : [ * ]
+export = system
+owner = admin
+version = 6.3.1
+modtime = 1448468486.892921000

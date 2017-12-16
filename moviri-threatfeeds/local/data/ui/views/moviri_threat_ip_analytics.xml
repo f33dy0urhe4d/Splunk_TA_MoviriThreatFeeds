@@ -1,0 +1,141 @@
+<form script="autodiscover.js">
+  <label>Threat IP Analytics Dashboard</label>
+  <label>Threat IP Analytic</label>
+  <description>Events Filtered by IP or IPSource using Dropdown Form Inputs</description>
+  <fieldset autoRun="true" submitButton="true">
+    <input type="text" token="IP" searchWhenChanged="false">
+      <label>Enter a IP for investigation:</label>
+    </input>
+    <input type="dropdown" token="IPSource" searchWhenChanged="true">
+      <label>Select a threat source:</label>
+      <prefix>threatsource="</prefix>
+      <suffix>"</suffix>
+      <default>*</default>
+      <choice value="*">All</choice>
+      <search>
+        <query>index=threatfeed | stats count by threatsource</query>
+        <earliest>-60m</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>threatsource</fieldForLabel>
+      <fieldForValue>threatsource</fieldForValue>
+    </input>
+    <input type="time" token="time" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-40m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>index=threatfeed | head 1|  eval IP="$IP$" | lookup threatscore clientip as IP | table visitor_type days_since_last_activity threatscore | table threatscore</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="linkView">search</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="trendInterval">auto</option>
+        <option name="underLabel">Honeypot ThreatScore</option>
+      </single>
+      <single>
+        <search>
+          <query>index=threatfeed | head 1|  eval IP="$IP$" | lookup threatscore clientip as IP | table days_since_last_activity</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="linkView">search</option>
+        <option name="rangeColors">["0x65a637","0x6db7c6","0xf7bc38","0xf58f39","0xd93f3c"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="trendInterval">auto</option>
+        <option name="underLabel">Honeypot Last Activity</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+    <h2>IP Threat Source by: Country</h2>
+    <div id="tagcloud-search" class="splunk-manager splunk-searchmanager " data-require="splunkjs/mvc/searchmanager" data-options="{     &quot;app&quot;: &quot;TFPS&quot;,     &quot;preview&quot;: true,     &quot;search&quot;: &quot;index=TFPS | iplocation IP  | stats count(IP) as IP by Country | sort -IP limit=30&quot;,     &quot;earliest_time&quot;: &quot;0&quot;     }">
+    </div>
+    <div id="tagcloud" class="splunk-view" data-require="app/moviri-threatfeeds/components/tagcloud/tagcloud" data-options="{     &quot;minFontSize&quot;: 14,     &quot;maxFontSize&quot;: 55,     &quot;managerid&quot;: &quot;tagcloud-search&quot;,     &quot;valueField&quot;: &quot;IP&quot;,     &quot;labelField&quot;: &quot;Country&quot;     }">
+    </div>
+    </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Stats of Events of Country, City by IPSource</title>
+        <search>
+          <query>index=threatfeed $IPSource$ | where cidrmatch(Network, "$IP$") | eval IP="$IP$" | iplocation IP | stats count by IP City Country | sort -count limit=5</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="displayRowNumbers">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">5</option>
+        <option name="rowNumbers">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Stats of Events by IPSource</title>
+        <search>
+          <query>index=threatfeed  $IPSource$  | where cidrmatch(Network, "$IP$") | eval IP="$IP$" | table _time, IP, threatsource</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="displayRowNumbers">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">5</option>
+        <option name="rowNumbers">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Visibility Threat IP Activities in Environment - Input IP above</title>
+        <search>
+          <query>index!=threatfeed index=*  $IP$ | eval IP="$IP$"  | Table _time host sourcetype source</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>
